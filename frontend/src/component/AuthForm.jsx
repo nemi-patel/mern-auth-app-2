@@ -1,53 +1,47 @@
-import React, { useState } from 'react'; // Import React and useState hook
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation after successful login/register
-import backgroundImage from '../Image/background.jpg'; // Import background image for styling
-import { toast, ToastContainer } from 'react-toastify'; // Import toast notification and container for success/error messages
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS for styling notifications
-import axios from 'axios'; // Import axios for making HTTP requests
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../Image/background.jpg';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
+const BASE_URL = 'https://mern-auth-app-backend2.onrender.com/api/auth';
 
 function AuthForm() {
-  // State to store username, password, and whether the user is on login or registration form
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // True means login form is shown, false for registration form
-  const navigate = useNavigate(); // Hook to programmatically navigate to another route after successful login/register
+  const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
 
-  // Function to handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    const endpoint = isLogin ? 'login' : 'register'; // Choose the appropriate API endpoint (login or register)
+    e.preventDefault();
+    const endpoint = isLogin ? 'login' : 'register';
 
     try {
-      // Send POST request to either login or register API depending on isLogin state
-      const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, {
+      const res = await axios.post(`${BASE_URL}/${endpoint}`, {
         username,
         password,
       });
 
-      toast.success(res.data.message); // Show success toast if the request is successful
+      toast.success(res.data.message);
 
-      // If login is successful, navigate to entry form with user ID
       if (isLogin) {
-        const user = await axios.get(`http://localhost:5000/api/auth/users/${username}`); // Fetch user data by username
-        const userId = user.data._id; // Extract user ID
-        navigate(`/entryform/${userId}`); // Navigate to entry form page with user ID
+        const user = await axios.get(`${BASE_URL}/users/${username}`);
+        const userId = user.data._id;
+        navigate(`/entryform/${userId}`);
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Error'; // Get the error message from the response
-      toast.error(errorMsg); // Show error toast if an error occurs
+      const errorMsg = err.response?.data?.message || 'Something went wrong';
+      toast.error(errorMsg);
     }
   };
 
   return (
     <>
       <div style={{ ...styles.outerContainer, backgroundImage: `url(${backgroundImage})` }}>
-        {/* Outer container with background image and styles */}
         <div style={styles.card}>
-          {/* Card for form content */}
           <h2 style={styles.title}>{isLogin ? 'Welcome Back 👋' : 'Join Us 🚀'}</h2>
-          {/* Title changes based on isLogin state */}
           <form onSubmit={handleSubmit} style={styles.form}>
-            {/* Form for username, password, and submit */}
             <input
               type="text"
               value={username}
@@ -56,7 +50,6 @@ function AuthForm() {
               required
               style={styles.input}
             />
-            {/* Username input */}
             <input
               type="password"
               value={password}
@@ -65,22 +58,15 @@ function AuthForm() {
               required
               style={styles.input}
             />
-            {/* Password input */}
             <button type="submit" style={styles.button}>
               {isLogin ? 'Login' : 'Register'}
             </button>
-            {/* Submit button text changes based on isLogin state */}
           </form>
-
           <button onClick={() => setIsLogin(!isLogin)} style={styles.toggle}>
-            {/* Button to toggle between login and register */}
             {isLogin ? 'New here? Register ✨' : 'Have an account? Login 🔐'}
           </button>
-          {/* Text that changes based on isLogin state */}
         </div>
-
         <ToastContainer position="top-right" autoClose={3000} theme="colored" pauseOnHover />
-        {/* Toast notifications container */}
       </div>
     </>
   );
@@ -153,5 +139,3 @@ const styles = {
 };
 
 export default AuthForm;
-
-// https://mern-auth-app-backend-j9eh.onrender.com 
