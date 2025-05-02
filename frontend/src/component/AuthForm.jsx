@@ -29,6 +29,10 @@ function AuthForm() {
         const user = await axios.get(`${BASE_URL}/users/${username}`);
         const userId = user.data._id;
         navigate(`/entryform/${userId}`);
+      } else {
+        // If registration is successful, redirect to login page
+        toast.success('Registration successful! Please login.');
+        setIsLogin(true);  // Switch to the login form after registration
       }
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Something went wrong';
