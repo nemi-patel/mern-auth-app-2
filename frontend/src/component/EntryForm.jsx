@@ -5,7 +5,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import backgroundImage from '../Image/background.jpg';
 
-// Set base URL for the backend API
 const baseURL = 'https://mern-auth-app-backend2.onrender.com';
 
 function EntryForm() {
@@ -23,7 +22,7 @@ function EntryForm() {
     try {
       const res = await axios.get(`${baseURL}/api/entries`);
       setEntries(res.data);
-    } catch (err) {
+    } catch {
       toast.error('❌ Failed to fetch entries');
     }
   };
@@ -76,7 +75,7 @@ function EntryForm() {
       await axios.delete(`${baseURL}/api/auth/users/${id}`);
       toast.success('👋 Logged out and user deleted!');
       setTimeout(() => navigate('/'), 1000);
-    } catch (err) {
+    } catch {
       toast.error('❌ Logout failed');
     }
   };
@@ -92,7 +91,7 @@ function EntryForm() {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          position: 'relative',
+          padding: '1rem',
         }}
       >
         <button
@@ -120,11 +119,11 @@ function EntryForm() {
             padding: '2rem',
             borderRadius: '1rem',
             boxShadow: '0 0 20px rgba(0, 0, 0, 0.2)',
-            width: '50%',
+            width: '100%',
             maxWidth: '700px',
           }}
         >
-          <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '1.5rem' }}>
             📝 {editingId ? 'Edit Entry' : 'Submit Form'}
           </h2>
 
@@ -144,8 +143,6 @@ function EntryForm() {
                 fontSize: '1rem',
                 borderRadius: '8px',
                 border: '1px solid #ccc',
-                width: '50%',
-                margin: '0 auto',
               }}
             />
             <input
@@ -160,8 +157,6 @@ function EntryForm() {
                 fontSize: '1rem',
                 borderRadius: '8px',
                 border: '1px solid #ccc',
-                width: '50%',
-                margin: '0 auto',
               }}
             />
             <button
@@ -174,72 +169,71 @@ function EntryForm() {
                 cursor: 'pointer',
                 border: 'none',
                 fontSize: '1rem',
-                width: '50%',
-                margin: '0 auto',
               }}
             >
               {editingId ? 'Save Changes' : 'Submit Entry'}
             </button>
           </form>
 
-          <h3 style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <h3 style={{ textAlign: 'center', marginTop: '2rem', fontSize: '1.2rem' }}>
             📋 Submitted Entries
           </h3>
 
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              marginTop: '1rem',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              backgroundColor: '#f9fafb',
-            }}
-          >
-            <thead>
-              <tr>
-                <th style={{ padding: '0.8rem', textAlign: 'left' }}>Name</th>
-                <th style={{ padding: '0.8rem', textAlign: 'left' }}>Email</th>
-                <th style={{ padding: '0.8rem', textAlign: 'center' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry) => (
-                <tr key={entry._id}>
-                  <td style={{ padding: '0.8rem' }}>{entry.name}</td>
-                  <td style={{ padding: '0.8rem' }}>{entry.email}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <button
-                      onClick={() => handleEdit(entry)}
-                      style={{
-                        backgroundColor: '#ffba08',
-                        padding: '0.4rem 0.8rem',
-                        border: 'none',
-                        borderRadius: '0.4rem',
-                        marginRight: '0.4rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(entry._id)}
-                      style={{
-                        backgroundColor: '#ef4444',
-                        padding: '0.4rem 0.8rem',
-                        border: 'none',
-                        borderRadius: '0.4rem',
-                        marginRight: '0.4rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+                borderRadius: '8px',
+                backgroundColor: '#f9fafb',
+                minWidth: '400px',
+              }}
+            >
+              <thead>
+                <tr style={{ backgroundColor: '#e5e7eb' }}>
+                  <th style={{ padding: '0.8rem', textAlign: 'left' }}>Name</th>
+                  <th style={{ padding: '0.8rem', textAlign: 'left' }}>Email</th>
+                  <th style={{ padding: '0.8rem', textAlign: 'center' }}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <tr key={entry._id}>
+                    <td style={{ padding: '0.8rem' }}>{entry.name}</td>
+                    <td style={{ padding: '0.8rem' }}>{entry.email}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                        <button
+                          onClick={() => handleEdit(entry)}
+                          style={{
+                            backgroundColor: '#ffba08',
+                            padding: '0.4rem 0.8rem',
+                            border: 'none',
+                            borderRadius: '0.4rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(entry._id)}
+                          style={{
+                            backgroundColor: '#ef4444',
+                            padding: '0.4rem 0.8rem',
+                            border: 'none',
+                            borderRadius: '0.4rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <ToastContainer position="top-right" autoClose={3000} theme="colored" pauseOnHover />
@@ -248,3 +242,4 @@ function EntryForm() {
 }
 
 export default EntryForm;
+
