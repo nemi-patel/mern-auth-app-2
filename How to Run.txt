@@ -273,7 +273,9 @@ npm i axios
 npm i react-toastify
 
 ------------------------------------------------------------
-deploy backend(Render.com)
+deploy backend(Render.com)  
+
+Youtube Link : https://youtu.be/cVEOhgPziO8?si=zzbLPvUNA9a1JXEV 
 ------------------------------------------------------------
 backend pela krvvu deploy render.com par javu
 
