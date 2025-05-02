@@ -1,85 +1,83 @@
-import React, { useEffect, useState } from 'react'; // Import React and hooks
-import axios from 'axios'; // Import axios for API requests
-import { ToastContainer, toast } from 'react-toastify'; // Import toast for notifications
-import { useNavigate, useParams } from 'react-router-dom'; // Import routing hooks
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS for styling notifications
-import backgroundImage from '../Image/background.jpg'; // Import background image
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate, useParams } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import backgroundImage from '../Image/background.jpg';
+
+// Set base URL for the backend API
+const baseURL = 'https://mern-auth-app-backend2.onrender.com';
 
 function EntryForm() {
-  const { id } = useParams();  // Retrieve the user ID from the URL params
-  const [form, setForm] = useState({ name: '', email: '' }); // State for form data (name and email)
-  const [entries, setEntries] = useState([]); // State for storing list of submitted entries
-  const [editingId, setEditingId] = useState(null); // State to track the entry being edited (if any)
-  const navigate = useNavigate(); // Hook for navigating between routes
+  const { id } = useParams();
+  const [form, setForm] = useState({ name: '', email: '' });
+  const [entries, setEntries] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchEntries(); // Fetch all entries on component mount
+    fetchEntries();
   }, []);
 
-  // Fetch all entries from the backend
   const fetchEntries = async () => {
-    const res = await axios.get('http://localhost:5000/api/entries');
-    setEntries(res.data); // Set the entries in state
+    try {
+      const res = await axios.get(`${baseURL}/api/entries`);
+      setEntries(res.data);
+    } catch (err) {
+      toast.error('❌ Failed to fetch entries');
+    }
   };
 
-  // Handle form input change
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value }); // Update state with input values
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission (both create and update)
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    if (!form.name || !form.email) return toast.error('All fields are required'); // Validation
+    e.preventDefault();
+    if (!form.name || !form.email) return toast.error('All fields are required');
 
     try {
       if (editingId) {
-        // Update an existing entry
-        await axios.put(`http://localhost:5000/api/entries/${editingId}`, form);
+        await axios.put(`${baseURL}/api/entries/${editingId}`, form);
         toast.success('✏️ Entry updated successfully!');
-        setEditingId(null); // Reset editing state
+        setEditingId(null);
       } else {
-        // Create a new entry
-        await axios.post('http://localhost:5000/api/entries', form);
+        await axios.post(`${baseURL}/api/entries`, form);
         toast.success('✅ Entry saved successfully!');
       }
-      setForm({ name: '', email: '' }); // Reset the form
-      await fetchEntries(); // Fetch updated entries list
+      setForm({ name: '', email: '' });
+      await fetchEntries();
     } catch (err) {
       if (err.response?.status === 409) {
-        toast.error('⚠️ Email already exists!'); // Handle email conflict
+        toast.error('⚠️ Email already exists!');
       } else {
-        toast.error('❌ Failed to submit entry'); // Handle general error
+        toast.error('❌ Failed to submit entry');
       }
     }
   };
 
-  // Handle editing an existing entry
   const handleEdit = (entry) => {
-    setForm({ name: entry.name, email: entry.email }); // Set form fields to the entry's values
-    setEditingId(entry._id); // Set the entry ID to mark it as being edited
+    setForm({ name: entry.name, email: entry.email });
+    setEditingId(entry._id);
   };
 
-  // Handle deleting an entry
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/api/entries/${id}`);
-    setEntries(entries.filter(e => e._id !== id)); // Remove deleted entry from the state
-    toast.success('🗑️ Entry deleted successfully!');
+    try {
+      await axios.delete(`${baseURL}/api/entries/${id}`);
+      setEntries(entries.filter((e) => e._id !== id));
+      toast.success('🗑️ Entry deleted successfully!');
+    } catch {
+      toast.error('❌ Failed to delete entry');
+    }
   };
 
-  // Handle logout and delete the user data
   const handleLogout = async () => {
     try {
-      // Delete user by ID from the backend
-      await axios.delete(`http://localhost:5000/api/auth/users/${id}`);
+      await axios.delete(`${baseURL}/api/auth/users/${id}`);
       toast.success('👋 Logged out and user deleted!');
-      
-      // After a successful logout, redirect to the login page
-      setTimeout(() => {
-        navigate('/'); // Navigate to the login page
-      }, 1000); // Redirect after 1 second
+      setTimeout(() => navigate('/'), 1000);
     } catch (err) {
-      toast.error('❌ Logout failed'); // Handle logout error
+      toast.error('❌ Logout failed');
     }
   };
 
@@ -87,57 +85,59 @@ function EntryForm() {
     <>
       <div
         style={{
-          backgroundImage: `url(${backgroundImage})`, // Set background image
+          backgroundImage: `url(${backgroundImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          minHeight: '100vh', // Full viewport height
+          minHeight: '100vh',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           position: 'relative',
         }}
       >
-        {/* Logout button */}
         <button
-          onClick={handleLogout} // Trigger logout and delete user
+          onClick={handleLogout}
           style={{
-            position: 'fixed', // Position it at the top-right corner
+            position: 'fixed',
             top: '1rem',
             right: '1rem',
-            backgroundColor: '#ef4444', // Red color
+            backgroundColor: '#ef4444',
             color: '#fff',
             padding: '0.5rem 1rem',
             border: 'none',
             borderRadius: '0.5rem',
             fontWeight: 'bold',
             cursor: 'pointer',
-            zIndex: 1000 // Ensure it stays above other elements
+            zIndex: 1000,
           }}
         >
           Logout
         </button>
 
-        {/* Form container */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.95)', // Light background for form
-          padding: '2rem',
-          borderRadius: '1rem',
-          boxShadow: '0 0 20px rgba(0, 0, 0, 0.2)',
-          width: '50%', // 50% width of the screen
-          maxWidth: '700px' // Max width for larger screens
-        }}>
+        <div
+          style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '2rem',
+            borderRadius: '1rem',
+            boxShadow: '0 0 20px rgba(0, 0, 0, 0.2)',
+            width: '50%',
+            maxWidth: '700px',
+          }}
+        >
           <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            📝 {editingId ? 'Edit Entry' : 'Submit Form'} {/* Title changes based on editing state */}
+            📝 {editingId ? 'Edit Entry' : 'Submit Form'}
           </h2>
 
-          {/* Form to submit name and email */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          >
             <input
               type="text"
               name="name"
               placeholder="Enter your name"
               value={form.name}
-              onChange={handleChange} // Update form state
+              onChange={handleChange}
               required
               style={{
                 padding: '0.8rem',
@@ -145,7 +145,7 @@ function EntryForm() {
                 borderRadius: '8px',
                 border: '1px solid #ccc',
                 width: '50%',
-                margin: '0 auto'
+                margin: '0 auto',
               }}
             />
             <input
@@ -153,7 +153,7 @@ function EntryForm() {
               name="email"
               placeholder="Enter your email"
               value={form.email}
-              onChange={handleChange} // Update form state
+              onChange={handleChange}
               required
               style={{
                 padding: '0.8rem',
@@ -161,13 +161,13 @@ function EntryForm() {
                 borderRadius: '8px',
                 border: '1px solid #ccc',
                 width: '50%',
-                margin: '0 auto'
+                margin: '0 auto',
               }}
             />
             <button
               type="submit"
               style={{
-                backgroundColor: '#4caf50', // Green button
+                backgroundColor: '#4caf50',
                 color: 'white',
                 padding: '0.8rem',
                 borderRadius: '8px',
@@ -175,25 +175,27 @@ function EntryForm() {
                 border: 'none',
                 fontSize: '1rem',
                 width: '50%',
-                margin: '0 auto'
+                margin: '0 auto',
               }}
             >
-              {editingId ? 'Save Changes' : 'Submit Entry'} {/* Button text changes based on editing state */}
+              {editingId ? 'Save Changes' : 'Submit Entry'}
             </button>
           </form>
 
-          {/* Display submitted entries */}
-          <h3 style={{ textAlign: 'center', marginTop: '2rem' }}>📋 Submitted Entries</h3>
+          <h3 style={{ textAlign: 'center', marginTop: '2rem' }}>
+            📋 Submitted Entries
+          </h3>
 
-          {/* Table to show submitted entries */}
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            marginTop: '1rem',
-            borderRadius: '8px',
-            overflow: 'hidden',
-            backgroundColor: '#f9fafb'
-          }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              marginTop: '1rem',
+              borderRadius: '8px',
+              overflow: 'hidden',
+              backgroundColor: '#f9fafb',
+            }}
+          >
             <thead>
               <tr>
                 <th style={{ padding: '0.8rem', textAlign: 'left' }}>Name</th>
@@ -202,34 +204,33 @@ function EntryForm() {
               </tr>
             </thead>
             <tbody>
-              {entries.map(entry => (
+              {entries.map((entry) => (
                 <tr key={entry._id}>
                   <td style={{ padding: '0.8rem' }}>{entry.name}</td>
                   <td style={{ padding: '0.8rem' }}>{entry.email}</td>
                   <td style={{ textAlign: 'center' }}>
-                    {/* Edit and Delete buttons for each entry */}
                     <button
-                      onClick={() => handleEdit(entry)} // Edit button
+                      onClick={() => handleEdit(entry)}
                       style={{
                         backgroundColor: '#ffba08',
                         padding: '0.4rem 0.8rem',
                         border: 'none',
                         borderRadius: '0.4rem',
                         marginRight: '0.4rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(entry._id)} // Delete button
+                      onClick={() => handleDelete(entry._id)}
                       style={{
                         backgroundColor: '#ef4444',
                         padding: '0.4rem 0.8rem',
                         border: 'none',
                         borderRadius: '0.4rem',
                         marginRight: '0.4rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
                       }}
                     >
                       Delete
@@ -241,12 +242,9 @@ function EntryForm() {
           </table>
         </div>
       </div>
-      {/* Toast notifications */}
       <ToastContainer position="top-right" autoClose={3000} theme="colored" pauseOnHover />
     </>
   );
 }
 
 export default EntryForm;
-
-// https://mern-auth-app-backend-j9eh.onrender.com 
